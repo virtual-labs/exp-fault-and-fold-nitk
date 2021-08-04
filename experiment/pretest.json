@@ -7,7 +7,8 @@
 		"d": "None of the above"
 	},
 	"correctAnswer": "b"
-}, {
+},
+{
 	"question": "Faults may range from",
 	"answers": {
 		"a": "Few micrometers to millimeter",
@@ -16,7 +17,8 @@
 		"d": "All of the above"
 	},
 	"correctAnswer": "c"
-}, {
+},
+{
 	"question": "Earthquake is caused due to",
 	"answers": {
 		"a": "Rock on one side of the fault suddenly slips with respect to the other",
@@ -25,7 +27,8 @@
 		"d": "None of the above"
 	},
 	"correctAnswer": "a"
-}, {
+},
+{
 	"question": "Asperities is",
 	"answers": {
 		"a": "Regions of higher friction along a fault plane",
@@ -34,7 +37,8 @@
 		"d": "None of the above"
 	},
 	"correctAnswer": "c"
-}, {
+},
+{
 	"question": "Fault forms, when",
 	"answers": {
 		"a": "The stress developed due to the movement of tectonic plate become greater than the strength of the rock",
