@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<title>SOLVE</title>
+<link rel="stylesheet" href="css/geo1.css" />
+<link rel="stylesheet" type="text/css" href="js/tipped.css" />
+<script type="text/javascript" src= "js/jquery-2.1.4.js"></script>
+<script type="text/javascript" src="js/jquery-1.12.4.js"></script>
+
+<script>
+	var dotpoints = [[120,100],
+				[490,200],
+				[780,0],
+				[820,0],
+				[870,300],
+				[1150,400],
+				[1480,500]];
+	var solidpoints = [[270,140],
+					[520,208],
+					[925,320],
+					[1180,410],
+					[1450,490],
+					[710,240]];
+	var finalPoints = [[120,100],
+				[490,200],
+				[710,240],
+				[870,300],
+				[1150,400],
+				[1480,500]];				
+
+	var dotmarkers = ['a','b','c','d','e','f','g'];
+	var solidmarkers = ['p','q','r','s','t'];
+var simsubscreennum=0;
+var temp=0,myInt;				
+(function () {
+    var delta = 200;
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] || window[vendors[x] + 'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame) window.requestAnimationFrame = function (callback, element) {
+        var currTime = new Date().getTime();
+        var timeToCall = Math.max(0,16- (currTime - lastTime));
+        var id = window.setTimeout(function () {
+            callback(currTime + timeToCall);
+        },
+        timeToCall);
+        lastTime = currTime + timeToCall;
+        return id;
+    };
+
+    if (!window.cancelAnimationFrame) window.cancelAnimationFrame = function (id) {
+        clearTimeout(id);
+    };
+}());
+</script>
+</head>
+<body style="margin:0">
+<!--Simulation Screen start		-->
+<div id="simscreen">
+
+<!--Title of Simulation		-->
+<div id="title"><h3>CONTOUR MAP</h3></div>
+<!-- <div class="canvasclass"> -->
+<!-- </div> -->
+<div class="simsubscreen" id="canvas0">
+	<h4 class="incanvas" style="font-family:verdana;" >Objective:</h4>
+	<ol class="incanvas" style="font-family:verdana; font-size:14px;padding-left:15px;">
+		<li>Draw a geological cross-section along XY.</li>
+		<li>Determine the downthrow of the fault.</li>
+		<li>A road is proposed as shown in the map.</li>
+	</ol>
+	<h4 class="incanvas" style="font-family:verdana;">Pre-requisites:</h4>
+	<p class="incanvas" style="font-family:verdana; font-size:14px;" >Topographic map</p>
+	<img style="position: absolute; left: 65px; top: 110px;" height="400" src="images/ctrmap1.png"/>
+	<span class="ttip" style="border-bottom:1px dotted ; color:red;text-align:justify">Description
+	<span class="ttiptext">
+		<strong style="color:red">Folds</strong>: The term fold is used in geology when one or a stack of originally flat, level surfaces, such as sedimentary strata, are bent or curved as a result of pressure and high temperature.<br>	<br>	
+		<strong style="color:red">Anticlinal folds</strong>: Anticlines are folds in which each half of the fold dips away from the crest.<br><br>
+		<strong style="color:red">Synclinal folds</strong>: Synclines are folds in which each half of the fold dips toward the trough of the fold.<br><br>	
+		<strong style="color:red">Fault</strong>: Faults are fractures (cracks) in rocks along which movement has occurred.<br><br>	
+		<strong style="color:red">Dyke</strong>: A dyke (or dike) in geology is a type of later vertical rock between older layers of rock.<br>	<br>	
+		<strong style="color:red">Ductile</strong>: When rocks bend or flow, like clay, it is called ductile deformation.<br><br>	
+	</span>
+	</span>
+</div>
+
+<!--Step1	-->	
+<div class="simsubscreen" id="canvas1" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;1&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Identify the line about which the profiles are to be drawn.</p>
+	<img id="fullmap" class="img1" style="position: absolute; left: 50px; top: 40px;" height="400" src="images/ctrmap1.png"/>
+	<img id="ctr1" style="position: absolute; left: 50px; top: 40px;visibility:hidden" height="400" src="images/ctr1.png"/>
+	<img id="cover" style="position: absolute; left: 35px; top: 80px;" src="images/cover.png"/>
+	<!-- <img id="cover" class="img1" style="position: absolute; left: 35px; top: 310px;" src="images/cover.png"/> -->
+	<p id="line" style="position: absolute; left: 35px; top: 420px;font-family:verdana; font-size:14px;">Line to be considered for profiles to be drawn:</p>
+	<ol style="position: absolute; left: 35px; top: 440px;font-family:verdana; font-size:14px;visibility:hidden">
+		<li id="line1" >XY</li>
+	</ol>
+	
+</div>
+
+<!--Step2	-->	
+<div class="simsubscreen" id="canvas2" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;2&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Mark all the points of XY line that is obtained by the intersection of the dotted line with this XY of the contour map. (except the road part shown by points c and d).</p>
+	<img id="map2" class="img1" style="position: absolute; left: 51px; top: 68px;" height="400" width="525" src="images/ctrmap1.png"/>
+	<canvas id="paper" width="485" height="0" style="position: absolute; left: 72px; top: 280px;visibility:hidden"></canvas>
+	<img id="dotplot" class="img1" style="position: absolute; left: 70px; top: 278px;visibility:hidden" src="images/dotpic.PNG"/>
+	<table id="dotpoints" border="1px" style="position:absolute; left:600px; top:70px;font-family:verdana;font-size:14px;color:black;text-align:center;visibility:hidden;">
+		<tr>
+			<th>Points</th>
+			<th>X-Co</th>
+			<th>Y-Co</th>
+		</tr>
+		<tr>
+			<td>a</td>
+			<td>x1</td>
+			<td>100</td>
+		</tr>
+		<tr>
+			<td>b</td>
+			<td>x2</td>
+			<td>200</td>
+		</tr>
+		<tr>
+			<td style="background-color:red">c</td>
+			<td>x3</td>
+			<td>N.A</td>
+		</tr>
+		<tr>
+			<td style="background-color:red">d</td>
+			<td>x4</td>
+			<td>N.A</td>
+		</tr>
+		<tr>
+			<td>e</td>
+			<td>x5</td>
+			<td>300</td>
+		</tr>
+		<tr>
+			<td>f</td>
+			<td>x6</td>
+			<td>400</td>
+		</tr>
+		<tr>
+			<td>g</td>
+			<td>x7</td>
+			<td>500</td>
+		</tr>
+	</table>
+	
+</div>
+
+
+
+<!--Step2	-->	
+<div class="simsubscreen" id="canvas3" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;3&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Identify X-axis and Y-axis taking X as origin and define scale.</p>
+	
+</div>
+
+<div class="simsubscreen" id="canvas4" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;4&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Plot the points taking its distance from X as x coordinate and the index values of the corresponding line as y coordinate along with the points Y’(1520,0) on the graph.</p>
+	<table class="tdstyle" id="dottable" border="1px" style="position:absolute; left:600px; top:120px;font-family:verdana;font-size:14px;color:black;text-align:center;visibility:hidden;">
+		<tr>
+			<th>Points</th>
+			<th>X-Co</th>
+			<th>Y-Co</th>
+		</tr>
+		<tr>
+			<td id="a1">a</td>
+			<td>120</td>
+			<td>100</td>
+		</tr>
+		<tr>
+			<td id="b1">b</td>
+			<td>490</td>
+			<td>200</td>
+		</tr>
+		<tr>
+			<td id="c1" style="background-color:red;cursor:default">c</td>
+			<td>780</td>
+			<td>N.A</td>
+		</tr>
+		<tr>
+			<td id="d1" style="background-color:red;cursor:default">d</td>
+			<td>820</td>
+			<td>N.A</td>
+		</tr>
+		<tr>
+			<td id="e1">e</td>
+			<td>870</td>
+			<td>300</td>
+		</tr>
+		<tr>
+			<td id="f1">f</td>
+			<td>1150</td>
+			<td>400</td>
+		</tr>
+		<tr>
+			<td id="g1">g</td>
+			<td>1480</td>
+			<td>500</td>
+		</tr>
+	</table>
+</div>
+
+<div class="simsubscreen" id="canvas5" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;5&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Mark all the points of XY line that is obtained by the intersection of the solid line with this XY of the contour map.</p>
+	<img id="map2" class="img1" style="position: absolute; left: 51px; top: 68px;" height="400" width="525" src="images/ctrmap1.png"/>
+	<canvas id="paper2" width="485" height="0" style="position: absolute; left: 72px; top: 280px;visibility:hidden"></canvas>
+	<img id="solidplot" class="img1" style="position: absolute; left: 72px; top: 280px;visibility:hidden" src="images/solidpic.PNG"/>
+	<table id="solidpoints" border="1px" style="position:absolute; left:600px; top:70px;font-family:verdana;font-size:14px;color:black;text-align:center;visibility:hidden;">
+		<tr>
+			<th>Points</th>
+			<th>X-Co</th>
+			<th>Y-Co</th>
+		</tr>
+		<tr>
+			<td>p</td>
+			<td>x1</td>
+			<td>y1</td>
+		</tr>
+		<tr>
+			<td>q</td>
+			<td>x2</td>
+			<td>y2</td>
+		</tr>
+		<tr>
+			<td>r</td>
+			<td>x3</td>
+			<td>y3</td>
+		</tr>
+		<tr>
+			<td>s</td>
+			<td>x4</td>
+			<td>y4</td>
+		</tr>
+		<tr>
+			<td>t</td>
+			<td>x5</td>
+			<td>y5</td>
+		</tr>
+	</table>
+</div>
+
+<div class="simsubscreen" id="canvas6" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;6&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Name the points as p,q,r … respectively taking its distance from X as x-coordinate.
+</p>
+	<table id="solidtable1" border="1px" style="position:absolute; left:600px; top:70px;font-family:verdana;font-size:14px;color:black;text-align:center;visibility:hidden;">
+	<tr>
+			<th>Points</th>
+			<th>X-Co</th>
+			<th>Y-Co</th>
+		</tr>
+		<tr>
+			<td>p</td>
+			<td id="x1">x1</td>
+			<td>y1</td>
+		</tr>
+		<tr>
+			<td>q</td>
+			<td id="x2">x2</td>
+			<td>y2</td>
+		</tr>
+		<tr>
+			<td>r</td>
+			<td id="x3">x3</td>
+			<td>y3</td>
+		</tr>
+		<tr>
+			<td>s</td>
+			<td id="x4">x4</td>
+			<td>y4</td>
+		</tr>
+		<tr>
+			<td>t</td>
+			<td id="x5">x5</td>
+			<td>y5</td>
+		</tr>
+	</table>
+</div>
+
+<div class="simsubscreen" id="canvas7" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;7&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;To Calculate the index value of the solid line.</p>
+	<p id="can7-1"  style="position: absolute; left: 35px; top: 40px;font-family:verdana; font-size:14px;visibility:hidden">&#10148;Search for the first dotted line on both the sides of the solid line.Let their index values be <span style="color:red">M</span> and <span style="color:green">N</span>.</p>
+	<p id="can7-2"  style="position: absolute; left: 35px; top:80px;font-family:verdana; font-size:14px;visibility:hidden">&#10148;Let α be the x-coordinate for dotted line with index value <span style="color:red">M</span> from Table 1</p>
+	<p id="can7-3"  style="position: absolute; left: 35px; top: 110px;font-family:verdana; font-size:14px;visibility:hidden">&#10148;Let β be the x-coordinate for dotted line with index value <span style="color:green">N</span> from Table 1</p>
+	<p id="can7-4"  style="position: absolute; left: 35px; top:140px;font-family:verdana; font-size:14px;visibility:hidden">&#10148;Let ¥ be the x-coordinate for selected solid line from Table 2.</p>
+	<p id="can7-5"  style="position: absolute; left: 35px; top:170px;font-family:verdana; font-size:14px;visibility:hidden">&#10148;The index value of the solid line is given by</p>
+	<p id="can7-6"  style="position: absolute; left: 75px; top:200px;font-family:verdana; font-size:14px;visibility:hidden">&#10148;<strong>For α>β</strong>:Index= (N*(α- ¥)+M*(¥- β))/( α- β) </p>
+	<p id="can7-7"  style="position: absolute; left: 75px; top:230px;font-family:verdana; font-size:14px;visibility:hidden">&#10148;<strong>For  α<β</strong>:Index=(N*(¥- α )+M*( β-¥))/( β- α) </p>
+	
+	<img id="img7-1" style="position: absolute; left: 55px; top: 130px;visibility:hidden;" height="60%" src="images/img7-3.png"/>
+	<img id="img7-2" style="position: absolute; left: 55px; top: 280px;visibility:hidden" src="images/table1.PNG"/>
+	<img id="img7-3" style="position: absolute; left: 215px; top: 280px;visibility:hidden" src="images/table2.PNG"/>
+	<img id="img7-4" style="position: absolute; left: 375px; top: 250px;visibility:hidden" src="images/img7-4.png"/>
+</div>
+
+<div class="simsubscreen" id="canvas8"  style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;8&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Calculate the index value of all solid lines.</p>
+	<span class="ttip" style="border-bottom:1px dotted ; color:red;text-align:justify;position:absolute; left: 350px;top:25px;">Hint
+	<span class="ttiptext" style="background-color:white; left: -350px;">
+		<img src="images/hint.png"/>
+	</span>
+	</span>
+	<form>
+	<label for="select8-1" style="position:absolute;left:20px; top:80px;font-family:verdana; font-size:14px;">Select <span style="color:red">M</span>:<select id="select8-1">
+		<option></option>
+		<option>100</option>
+		<option>200</option>
+		<option>300</option>
+		<option>400</option>
+		<option>500</option>
+	</select></label>
+	<label for="select8-2" style="position:absolute;left:150px; top:80px;font-family:verdana; font-size:14px;">Select <span style="color:green">N</span>:<select id="select8-2">
+		<option></option>
+		<option>100</option>
+		<option>200</option>
+		<option>300</option>
+		<option>400</option>
+		<option>500</option>
+	</select></label>
+	<input id="calci" type="button" style="position:absolute;left:270px; top:80px;font-family:verdana; font-size:14px;visibility:hidden;cursor:pointer;" value="Calculate"/>
+	</form>
+	<table id="table1" border="1px" style="position:absolute;left:590px; top:230px;font-family:verdana;font-size:13px;color:black;text-align:center;">
+		<tr>
+			<th colspan="3">Table 1</th>
+		</tr>
+		<tr>
+			<th>Points</th>
+			<th>X-Co</th>
+			<th>Y-Co</th>
+		</tr>
+		<tr>
+			<td>a</td>
+			<td>120</td>
+			<td id="mn1">100</td>
+		</tr>
+		<tr>
+			<td>b</td>
+			<td>490</td>
+			<td id="mn2">200</td>
+		</tr>
+		<tr>
+			<td style="background-color:lightgrey">c</td>
+			<td style="background-color:lightgrey">780</td>
+			<td style="background-color:lightgrey">N.A</td>
+		</tr>
+		<tr>
+			<td style="background-color:lightgrey">d</td>
+			<td style="background-color:lightgrey">820</td>
+			<td style="background-color:lightgrey">N.A</td>
+		</tr>
+		<tr>
+			<td>e</td>
+			<td>870</td>
+			<td id="mn3">300</td>
+		</tr>
+		<tr>
+			<td>f</td>
+			<td>1150</td>
+			<td id="mn4">400</td>
+		</tr>
+		<tr>
+			<td>g</td>
+			<td>1480</td>
+			<td id="mn5">500</td>
+		</tr>
+	</table>
+	<table id="table2" border="1px" style="position:absolute; left:445px; top:230px;font-family:verdana;font-size:13px;color:black;text-align:center;">
+		<tr>
+			<th colspan="3">Table 2</th>
+		</tr>
+		<tr>
+			<th>Points</th>
+			<th>X-Co</th>
+			<th>Y-Co</th>
+		</tr>
+		<tr>
+			<td>p</td>
+			<td id="p1">270</td>
+			<td id="yval1">y1</td>
+		</tr>
+		<tr>
+			<td>q</td>
+			<td id="p2">520</td>
+			<td id="yval2">y2</td>
+		</tr>
+		<tr>
+			<td>r</td>
+			<td id="p3">925</td>
+			<td id="yval3">y3</td>
+		</tr>
+		<tr>
+			<td>s</td>
+			<td id="p4">1180</td>
+			<td id="yval4">y4</td>
+		</tr>
+		<tr>
+			<td>t</td>
+			<td id="p5">1450</td>
+			<td id="yval5">y5</td>
+		</tr>
+	</table>
+	<img id="img8-1" style="position:absolute; left: 10px; top: 245px;" height="50%"  src="images/img8-1.png"/>
+	<img id="nb" style="position:absolute; left: 220px; top: 200px;visibility:hidden;cursor:pointer;" src="images/nb.png"/>
+	<p id="can8-1" style="position:absolute; left: 20px; top: 35px;font-family:verdana; font-size:14px;">&#10148;For the solid line <span>p</span>:</p>
+	<p id="can8-2" style="position:absolute; left: 20px; top: 105px;font-family:verdana; font-size:14px;"></p>
+	<p id="can8-3" style="position:absolute; left: 120px; top: 105px;font-family:verdana; font-size:14px;"></p>
+	<p id="can8-4" style="position:absolute; left: 220px; top: 105px;font-family:verdana; font-size:14px;"></p>
+	<p id="can8-5" style="position:absolute; left: 120px; top: 135px;font-family:verdana; font-size:14px;"></p>
+	<p id="can8-6" style="position:absolute; left: 20px; top: 165px;font-family:verdana; font-size:14px;"></p>
+	<p id="can8-7" style="position:absolute; left: 20px; top: 195px;font-family:verdana; font-size:14px;"></p>
+	<p id="can8-8" style="position:absolute; left: 20px; top: 195px;font-family:verdana; font-size:14px;"></p>
+</div>
+
+<div class="simsubscreen" id="canvas9" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;9&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Plot the above points (p to t) with the plotted points (a to g) along with the points Y’ (1535,0) along with u(710,240) on the graph.</p>
+	<table class="tdstyle" id="solidtable" border="1px" style="position:absolute; left:600px; top:120px;font-family:verdana;font-size:14px;color:black;text-align:center;">
+		<tr>
+			<th>Points</th>
+			<th>X-Co</th>
+			<th>Y-Co</th>
+		</tr>
+		<tr>
+			<td id="p">p</td>
+			<td>270</td>
+			<td>140</td>
+		</tr>
+		<tr>
+			<td id="q">q</td>
+			<td>520</td>
+			<td>208</td>
+		</tr>
+		<tr>
+			<td id="r">r</td>
+			<td>925</td>
+			<td>320</td>
+		</tr>
+		<tr>
+			<td id="s">s</td>
+			<td>1180</td>
+			<td>410</td>
+		</tr>
+		<tr>
+			<td id="t">t</td>
+			<td>1450</td>
+			<td>490</td>
+		</tr>
+		<tr>
+			<td id="u">u</td>
+			<td>710</td>
+			<td>240</td>
+		</tr>
+	</table>
+</div>
+
+<div class="simsubscreen" id="canvas10" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;10&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Join all the plotted points on the graph free hand. And extrapolate it between the bounds.</p>
+</div>
+
+
+<div class="simsubscreen" id="canvas11" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;11&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Mark road points on the cross section c(780m,280m) and d(829m,290m).
+</p>
+</div>
+
+<div class="simsubscreen" id="canvas12" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;12&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Draw a line perpendicular to X-axis passing through POINT J’(710,0).
+	which is the fault line that is FF, that’s cuts the curve at POINT u(710,240).</p>
+</div>
+<div class="simsubscreen" id="canvas13" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;13&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Calculation for Angle of dip.</p>
+	<p id="can12-1"  style="position: absolute; left: 35px; top: 40px;font-family:verdana; font-size:14px;">&#10148;Search for the points of intersection between the solid line and the dotted line on the contour map.</p>
+	<p id="can12-2"  style="position: absolute; left:577px; top:120px;font-family:verdana; font-size:14px;visibility:hidden">T1=100&nbsp;&nbsp;T2=200</p>
+	<img id="img12-1" class="img1" style="position: absolute; left: 40px; top: 130px;width:70%" src="images/ctrmap1.png"/>
+	<p id="can12-3"  style="position: absolute; left:577px; top:150px;font-family:verdana; font-size:14px;"></p>
+	<p id="can12-4"  style="position: absolute; left: 35px; top: 60px;font-family:verdana; font-size:14px;"></p>
+	<p id="can12-5"  style="position: absolute; left: 35px; top: 80px;font-family:verdana; font-size:14px;"></p>
+	<p id="can12-6"  style="position: absolute; left:577px; top:180px;font-family:verdana; font-size:14px;visibility:hidden">T2&gt;T1</p>
+	<img id="img12-2"  style="position: absolute; left:574px; top:215px;visibility:hidden" src="images/tan.PNG">
+	<p id="can12-8"  style="position: absolute; left:577px; top:240px;font-family:verdana; font-size:14px;visibility:hidden">Angle of Dip<br>&theta;=27&deg;</p>
+</div>
+
+<div class="simsubscreen" id="canvas14" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;14&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;From the points (p,q,r,s,t,u) draw a line  at an angle θ   with  horizontal in clockwise direction  and its point of intersection on x-axis be (p’,q’,r’,s’,t’,u’) respectively.</p>
+	<p id="pp" class="lastpara"  style="left:620px; top:50px;visibility:hidden"  onclick="toDrawDrip(this);">&#10148;p-p’<span id="s1" style="color:black;font-size:30px;">&#9754;</span></p>
+	<p id="qq" class="lastpara" style="left:620px; top:80px;visibility:hidden" onclick="toDrawDrip(this);">&#10148;q-q’<span id="s2"  style="color:black;font-size:30px;">&#9754;</span></p>
+	<p id="rr" class="lastpara" style="left:620px; top:110px;visibility:hidden" onclick="toDrawDrip(this);">&#10148;r-r’<span id="s3" style="color:black;font-size:30px;">&#9754;</span></p>
+	<p id="ss" class="lastpara"style="left:620px; top:140px;visibility:hidden" onclick="toDrawDrip(this);">&#10148;s-s’<span id="s4" style="color:black;font-size:30px;">&#9754;</span></p> 
+	<p id="ttt" class="lastpara" style="left:620px; top:170px;visibility:hidden" onclick="toDrawDrip(this);">&#10148;t-t’<span id="s5" style="color:black;font-size:30px;">&#9754;</span></p> 
+	<p id="uu" class="lastpara" style="left:620px; top:200px;visibility:hidden" onclick="toDrawDrip(this);">&#10148;u-u’<span id="s6" style="color:black;font-size:30px;">&#9754;</span></p> 
+</div>
+
+<div class="simsubscreen" id="canvas15" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;15&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Location of Types of stones on the contour.</p>
+	<p id="congo" class="lastpara" style="left:610px; top:100px;color:brown;visibility:hidden" onclick = "fillPattterns(this)">&#10148;Conglomerate<span id="s111"  style="color:black;font-size:30px;">&#9754;</span></p>
+	<p id="cgstone" class="lastpara" style="left:610px; top:150px;color:blue;visibility:hidden" onclick = "fillPattterns(this)">&#10148;Course grainded Sandstone<span id="s22" style="color:black;font-size:30px;">&#9754;</span></p>
+	<p id="fgstone" class="lastpara"style="left:610px; top:220px;color:green;visibility:hidden" onclick = "fillPattterns(this)">&#10148;Fine grainded Sandstone<span id="s33" style="color:black;font-size:30px;">&#9754;</span></p> 
+	<p id="shale" class="lastpara" style="left:610px; top:270px;color:#581845;visibility:hidden" onclick = "fillPattterns(this)">&#10148;Shale<span id="s44" style="color:black;font-size:30px;">&#9754;</span></p> 
+	<p id="lime" class="lastpara" style="left:610px; top:320px;color:goldenrod;visibility:hidden" onclick = "fillPattterns(this)"  >&#10148;Limestone<span id="s55" style="color:black;font-size:30px;">&#9754;</span></p> 
+</div>
+
+<div class="simsubscreen" id="canvas16" style="visibility:hidden" >
+	<strong id="titlestep" class="incanvas">STEP </strong>
+	<span class="circlebg" id="stepnumber">&nbsp;16&nbsp;</span>
+	<p id="pumptext" class="steptext" style="font-family:verdana; font-size:14px;">&nbsp;Determination of downthrow of the fault.</p>
+</div>
+
+<div class="simsubscreen" id="canvas17"  style="visibility:hidden" >
+<center><h2 style="font-family:verdana;">Profile View Graph<h2></center></p>
+<span id="step16-1" style="border: 2px solid; position:absolute;top:60px; left:150px;font-family:verdana; font-size:14px;cursor:pointer;text-align:center;padding: 3px;border-radius: 3px;" onclick = "divshow1();">Contour Map</span>
+<span id="step16-2" style="border: 2px solid; position:absolute;top: 60px; left:290px;font-family:verdana; font-size:14px;cursor:pointer;text-align:center;padding: 3px;border-radius: 3px;" onclick = "divshow2();">Geographical Profile along XY</span>
+<div id="resultContainer" style="height: 420px; width: 700px;left: 55px; top: 120px;"></div>
+</div>
+
+<span id="cmap"  style="position:absolute; left:660px; top:120px;font-family:verdana;font-size:14px;width:125px;height:25px;color:black;visibility:hidden">Get Paper</span>
+<div id="canvas-wrap-1" style="visibility:hidden">
+	<canvas id="mycanvas" width="605" height="400" border="1px;"></canvas>
+	<canvas id="mycanvas2" width="605" height="400" border="1px;"></canvas>
+	<img id="scale" style="visibility:hidden" src="images/scale.png">
+	<img id="scinff" src="images/scinff.png">
+	<img id="direct" style="visibility:hidden" src="images/direction.png">
+	<img id="direction" src="images/dir.png">
+	<img id="legend" style="visibility:hidden" src="images/legg.png">
+	<img id="legg" src="images/legend1.png">
+</div>
+
+
+<!-- -----------------------dottedline  and solidline points pic ---------------->
+<img id="dotpic" class="img1" style="position: absolute; left: 74px; top: 190px;visibility:hidden" src="images/dotimg.png"/>
+<img id="solidpic" class="img1" style="position: absolute; left: 76px; top: 190px;visibility:hidden" src="images/solidimg.png"/>
+<img id="inst" class="img1" style="position: absolute; left: 35px; top: 40px;display: none;" src="images/inst.PNG"/>
+
+<!-- <div id="hideContent" style="position: absolute; left: 45px; top: 100px;height:470px;width:605px;background-color:#F8F8FF"></div> -->
+<!-- <div id="hideContent" style="position: absolute; left: 45px; top: 100px;height:470px;width:605px;background-color:#F5FFFA"></div> -->
+
+<!-- Dialog division -->
+<span id="dialog-div">
+	 <p id="divp" style="font-family:verdana; font-size:14px;">Both ends of the pipe must be trimmed to ensure parallel faces.</p>
+	 <input type="button" style="cursor:pointer" value="OK" onclick = "hideDialog();">
+</span>
+
+<!-- -------------tooltip span -->
+<span id="tooltip-span" border="1px" style="background-color:#0695B2;border-radius:5px;"></span>
+
+<!-- This is the questions division -->
+<span id="question-div">
+	 <p id="divq" style="font-family:verdana; font-size:14px;">Both ends of the pipe must be trimmed to ensure parallel faces.</p>
+	 <!-- <input type="button" style="cursor:pointer" value="OK" onclick = "evaluateAnswer();"> -->
+	 <p id="ans"></p>
+</span>
+
+
+<!-- <!-------next button-----------> 
+<div id="nav">
+	<img id="nextButton" onclick="navNext(); " src="images/Next.png" />
+</div>
+<!--Blinking Arrow	-->	
+<img class ="" id="arrow1" style="visibility:hidden;" src="images/arrow1.png"/>
+
+<div id="copyright"> &copy; 2018 - <script>document.write(new Date().getFullYear())</script> SOLVE - The Virtual Lab @ NITK Surathkal, Department of Water Resources & Ocean Engineering</div><script type="text/javascript" src= "js/geo1.js"></script>
+</div>
+<script src="../assets/js/iframeResize.js"></script></body>
+</html>
